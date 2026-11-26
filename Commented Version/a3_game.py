@@ -15,12 +15,8 @@ Hinger_Bonus = 100
 
 def _player_names(agentA, agentB):
     """Display names; humans (None) get a label, and clashes are explained."""
-    # An agent of None means a human player, so it has no .name to read.
-    # Give humans a label instead.
     a = agentA.name if agentA is not None else "Human A"
     b = agentB.name if agentB is not None else "Human B"
-    # If both players share a name (e.g. two default-named agents), add (A)/(B)
-    # so the printed output and the returned winner are not ambiguous.
     if a == b:
         a, b = a + " (A)", b + " (B)"
     return a, b
@@ -28,14 +24,11 @@ def _player_names(agentA, agentB):
 
 def _get_move(agent, state, name):
     """Ask an agent or a human for a move. Returns a string (possibly junk)"""
-    # This is the ONE place a move is fetched. In Part 2 (a3_advGame.py) the
-    # human branch can be swapped for a hand-sign input without touching play().
     if agent is None:
         # Human: show the board, then read typed input.
         print(state)
         # .strip() removes stray spaces and .upper() lets "m" count as "M".
         return input(f"{name}, enter your move (A-Y, or Z to give up): ").strip().upper()
-    # AI / scripted agent: it looks at the state and returns a letter (or None).
     move = agent.next_move(state)
     # Only upper-case it if it is a string, so None doesn't crash .upper().
     # Anything invalid is caught later in play() as an illegal move.
