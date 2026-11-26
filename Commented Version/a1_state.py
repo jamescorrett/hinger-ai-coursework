@@ -10,22 +10,16 @@ class State:
     SIZE = 5
 
     def __init__(self, grid: list[list[int]]):
-        # grid[r][c] = number of counters in that cell (0 means empty/inactive).
-        # Copy each row ([:]) so changing this State never changes the caller's list.
         # Copying rows is enough because the cells are ints, which are immutable.
         self.grid: list[list[int]] = [row[:] for row in grid]
 
     def __str__(self):
-        # Readable matrix with no borders, like Figure 1.1:
-        # numbers joined by spaces, one row per line.
         return "\n".join(
             " ".join(str(cell) for cell in row)
             for row in self.grid
     )
 
     def  copy(self):
-        # Independent copy of the state. Used for successors() and for the hinger
-        # check, so we can try things without changing the real board.
         return State(self.grid)
 
     @staticmethod
@@ -48,15 +42,11 @@ class State:
 
     def neighbours(self, r: int, c: int):
         """In-bounds cells adjacent to (r, c), including diagonals."""
-        # Adjacent means max(|dr|, |dc|) == 1: the 8 surrounding cells.
-        # Try every offset of -1, 0, +1 in both directions...
         for dr in (-1, 0, 1):
             for dc in (-1, 0, 1):
-                # ...except (0, 0), which is the cell itself.
                 if dc == 0 and dr == 0:
                     continue
                 nr, nc = r + dr, c + dc
-                # Skip cells that would fall off the edge of the board.
                 if 0 <= nr < State.SIZE and 0 <= nc < State.SIZE:
                     yield nr, nc
 
@@ -66,12 +56,9 @@ class State:
         return sum(1 for nr, nc in self.neighbours(r, c) if self.is_active(nr, nc))
 
     def legal_moves(self):
-        # Letters for every active cell, in reading order (A..Y).
-        # row * SIZE + column is the cell's index, and chr(ord('A') + index) is its letter.
         return [chr(ord('A') + r * self.SIZE + c) for r in range(self.SIZE) for c in range(self.SIZE) if self.is_active(r, c)]
 
     def is_legal(self, letter: str):
-        # Legal = a real board cell (A-Y) that still has a counter on it.
         cell = self.letter_to_cell(letter)
         return cell is not None and self.is_active(*cell)
 
@@ -83,7 +70,6 @@ class State:
         if cell is None or not self.is_active(*cell):
             return False
         r, c = cell
-        # -= 1 (not = 0) because a cell can hold more than one counter.
         self.grid[r][c] -= 1
         return True
 
@@ -112,17 +98,10 @@ class State:
 
     def is_hinger(self, r, c):
         """One counter, and removing it increases the region count"""
-        # A cell with 0 or 2+ counters can never be a hinger: removing one
-        # counter must EMPTY the cell for the board to split.
         if self.grid[r][c] != 1:
             return False
-        # Try the removal on a copy so the real board is not touched.
         after = self.copy()
         after.grid[r][c] = 0
-        # Strictly MORE regions afterwards means the cell was a bridge:
-        #   isolated counter -> regions go DOWN (not a hinger)
-        #   end of a chain   -> regions stay the SAME (not a hinger)
-        #   bridge           -> regions go UP (hinger)
         return after.numRegions() > self.numRegions()
 
     def numHingers(self):
@@ -132,8 +111,6 @@ class State:
 
     def successors(self):
         """Yield every state reachable by removing one counter"""
-        # A generator: it hands back one new state at a time instead of building
-        # a whole list. Each successor is a copy, so the original is unchanged.
         for letter in self.legal_moves():
             nxt = self.copy()
             nxt.move(letter)
