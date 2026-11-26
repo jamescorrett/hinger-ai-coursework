@@ -6,9 +6,6 @@
 
 from a1_state import State
 
-# Every player starts on 100 points, and a hinger move earns +100.
-# Keeping them as named constants means there are no "magic numbers" in the code
-# and they only need changing in one place.
 Start_Score = 100
 Hinger_Bonus = 100
 
